@@ -90,13 +90,16 @@ New-AzPrivateDnsVirtualNetworkLink -Name "$privateDnsZoneName-dns-link" `
   -VirtualNetwork $virtualNetwork `
   -EnableRegistration
 
-Write-Host "Adding a CNAME record in the private DNS zone: $privateDnsZoneName..."
-New-AzPrivateDnsRecordSet -Name "todo" `
-  -ResourceGroupName $resourceGroupName `
-  -ZoneName $privateDnsZoneName `
-  -RecordType CNAME `
-  -Ttl 3600 `
-| Add-AzPrivateDnsRecordConfig -Cname "$webVmName.$privateDnsZoneName" `
-| Set-AzPrivateDnsRecordSet
+  Write-Host "Adding a CNAME record in the private DNS zone: $privateDnsZoneName..."
+  $recordSet = New-AzPrivateDnsRecordSet -Name "todo" `
+    -ResourceGroupName $resourceGroupName `
+    -ZoneName $privateDnsZoneName `
+    -RecordType CNAME `
+    -Ttl 3600
 
-Write-Host "DNS record 'todo' in private DNS zone: $privateDnsZoneName created successfully!"
+  Add-AzPrivateDnsRecordConfig -RecordSet $recordSet -Cname "$webVmName.$privateDnsZoneName"
+
+  Set-AzPrivateDnsRecordSet -RecordSet $recordSet
+  
+  Write-Host "DNS record 'todo' in private DNS zone: $privateDnsZoneName created successfully!"
+
